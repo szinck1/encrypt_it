@@ -22,29 +22,3 @@ jobs:
             pytest tests
             pylint src tests
             mypy src tests
-  deploy:
-    docker:
-      - image: docker
-    steps:
-      - checkout:
-        path: ~/repo
-      - setup_remote_docker
-      - run:
-        command: |
-          docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-          docker build  -t "${DOCKER_REGISTRY}/${NAMESPACE}/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_SHA1}" -t "${DOCKER_REGISTRY}/${NAMESPACE}/${CIRCLE_PROJECT_REPONAME}:latest" .
-          docker push "${DOCKER_REGISTRY}/${NAMESPACE}/${CIRCLE_PROJECT_REPONAME}:${CIRCLE_SHA1}"
-          docker push "${DOCKER_REGISTRY}/${NAMESPACE}/${CIRCLE_PROJECT_REPONAME}:latest"
-        name: "Build and Deploy Docker Image"
-workflows:
-  version: 2
-  ci:
-    jobs:
-      - build
-      - deploy:
-        filters:
-          branches:
-            only:
-              - cicd
-        requires:
-          - build
